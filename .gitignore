@@ -1,0 +1,29 @@
+# Terraform 상태 파일
+*.tfstate
+*.tfstate.*
+
+# Terraform 재설정 파일
+crash.log
+*.log
+*.tfvars
+
+# Terraform 플랜 파일
+*.tfplan
+
+# Terraform 디렉터리
+.terraform/
+.terraform.lock.hcl
+
+# SSH 키 파일 (예: Terraform에 의해 생성된 임시 SSH 키)
+*.pem
+*.key
+
+# IDE 디렉토리 (예: IntelliJ IDEA, Eclipse, VS Code)
+.idea/
+.vscode/
+.metadata/
+*.swp
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
