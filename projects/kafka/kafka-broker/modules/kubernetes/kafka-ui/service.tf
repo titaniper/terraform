@@ -13,7 +13,7 @@ resource "kubernetes_service" "this" {
     port {
       port        = 80
       target_port = 8080 # 8080으로 수정합니다.
-      # protocol    = "TCP"
+      protocol    = "TCP"
       name        = "http"
     }
 

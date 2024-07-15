@@ -10,6 +10,10 @@ resource "kubernetes_namespace" "streaming" {
   }
 }
 
+locals {
+  cluster_name = "kafka"
+}
+
 # 기존의 Role, RoleBinding, ClusterRole, ClusterRoleBinding 및 IAM 정책 리소스들 유지
 resource "kubernetes_cluster_role" "kafka_operator" {
   metadata {
@@ -54,9 +58,12 @@ resource "kubernetes_role" "kafka_operator" {
   }
 
   rule {
-    api_groups = ["kafka.strimzi.io"]
-    resources  = ["kafkas", "kafkaconnects", "kafkaconnectors", "kafkatopics"]
-    verbs      = ["create", "get", "list", "watch", "delete", "patch", "update"]
+    api_groups = ["*"]
+    resources  = ["*"]
+    verbs      = ["*"]
+    # api_groups = ["kafka.strimzi.io"]
+    # resources  = ["kafkas", "kafkaconnects", "kafkaconnectors", "kafkatopics"]
+    # verbs      = ["create", "get", "list", "watch", "delete", "patch", "update"]
   }
 }
 
@@ -97,7 +104,7 @@ resource "kubernetes_manifest" "kafka" {
     apiVersion = "kafka.strimzi.io/v1beta2"
     kind       = "Kafka"
     metadata = {
-      name      = kubernetes_namespace.streaming.metadata[0].name
+      name      = local.cluster_name
       namespace = kubernetes_namespace.streaming.metadata[0].name
       labels = {
         "app.kubernetes.io/managed-by" = "terraform"
@@ -106,7 +113,7 @@ resource "kubernetes_manifest" "kafka" {
     spec = {
       kafka = {
         version  = "3.5.1"
-        replicas = 3
+        replicas = 1
         listeners = [
           {
             name = "plain"
@@ -115,6 +122,7 @@ resource "kubernetes_manifest" "kafka" {
             tls  = false
             configuration = {
               useServiceDnsDomain = true
+              advertisedListeners = "PLAINTEXT://kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
             }
           },
           {
@@ -126,23 +134,23 @@ resource "kubernetes_manifest" "kafka" {
         ]
         config = {
           "auto.create.topics.enable"                = false
-          "offsets.topic.replication.factor"         = 3
-          "transaction.state.log.replication.factor" = 3
-          "transaction.state.log.min.isr"            = 2
-          "default.replication.factor"               = 3
-          "min.insync.replicas"                      = 2
-          "message.max.bytes"                        = 20971520
-          "fetch.max.bytes"                          = 20971520
-          "replica.fetch.max.bytes"                  = 20971520
-          "replica.fetch.response.max.bytes"         = 20971520
-          "max.partition.fetch.bytes"                = 20971520
+          "offsets.topic.replication.factor"         = 1
+          "transaction.state.log.replication.factor" = 1
+          "transaction.state.log.min.isr"            = 1
+          "default.replication.factor"               = 1
+          "min.insync.replicas"                      = 1
+          "message.max.bytes"                        = 104857600
+          "fetch.max.bytes"                          = 104857600
+          "replica.fetch.max.bytes"                  = 104857600
+          "replica.fetch.response.max.bytes"         = 104857600
+          "max.partition.fetch.bytes"                = 104857600
         }
         storage = {
           type = "jbod"
           volumes = [{
             id          = 0
             type        = "persistent-claim"
-            size        = "40Gi"
+            size        = "5Gi"
             deleteClaim = false
           }]
         }
@@ -160,21 +168,21 @@ resource "kubernetes_manifest" "kafka" {
             priorityClassName = "system-cluster-critical"
           }
         }
-        resources = {
-          requests = {
-            memory = "3Gi"
-          }
-          limits = {
-            memory = "3Gi"
-          }
-        }
+        # resources = {
+        #   requests = {
+        #     memory = "3Gi"
+        #   }
+        #   limits = {
+        #     memory = "3Gi"
+        #   }
+        # }
       }
 
       zookeeper = {
-        replicas = 3
+        replicas = 1
         storage = {
           type        = "persistent-claim"
-          size        = "10Gi"
+          size        = "5Gi"
           deleteClaim = false
         }
         # metricsConfig = {
@@ -191,34 +199,34 @@ resource "kubernetes_manifest" "kafka" {
             priorityClassName = "system-cluster-critical"
           }
         }
-        resources = {
-          requests = {
-            memory = "512Mi"
-          }
-          limits = {
-            memory = "512Mi"
-          }
-        }
+        # resources = {
+        #   requests = {
+        #     memory = "512Mi"
+        #   }
+        #   limits = {
+        #     memory = "512Mi"
+        #   }
+        # }
       }
 
       entityOperator = {
         topicOperator = {
           resources = {
-            requests = {
-              memory = "500Mi"
-            }
+            # requests = {
+            #   memory = "500Mi"
+            # }
             limits = {
-              memory = "500Mi"
+              memory = "300Mi"
             }
           }
         }
         userOperator = {
           resources = {
-            requests = {
-              memory = "400Mi"
-            }
+            # requests = {
+            #   memory = "400Mi"
+            # }
             limits = {
-              memory = "400Mi"
+              memory = "300Mi"
             }
           }
         }
@@ -405,4 +413,5 @@ resource "kubernetes_manifest" "kafka" {
 #     })
 #   }
 # }
+
 

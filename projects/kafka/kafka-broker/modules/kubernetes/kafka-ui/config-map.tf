@@ -11,18 +11,6 @@ resource "kubernetes_config_map" "this" {
 
   data = {
     "config.yml" = yamlencode({
-      # auth = {
-      #   enabled = false
-      #   type = "LOGIN_FORM"
-        
-      # }
-      # auth = {
-      #   type = "basic"
-      #   enabled = true
-      #   basic = {
-      #     users = var.users
-      #   }
-      # }
       # https://github.com/provectus/kafka-ui/wiki/OAuth-Configuration
       auth = {
         type = "OAUTH2"

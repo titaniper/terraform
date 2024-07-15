@@ -34,11 +34,11 @@ resource "kubernetes_deployment" "this" {
 
           env {
             name  = "KAFKA_CLUSTERS_0_NAME"
-            value = "streaming"
+            value = "kafka"
           }
           env {
             name  = "KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS"
-            value = "streaming-kafka-bootstrap.streaming:9092"
+            value = "kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
           }
           env {
             name  = "SPRING_CONFIG_LOCATION"
@@ -48,7 +48,7 @@ resource "kubernetes_deployment" "this" {
           port {
             name           = "http"
             container_port = 8080
-            # protocol       = "TCP"
+            protocol       = "TCP"
           }
           liveness_probe {
             http_get {

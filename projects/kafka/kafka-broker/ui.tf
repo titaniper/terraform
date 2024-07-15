@@ -15,7 +15,7 @@ module "kafka-ui" {
     github = {
       client_id     = var.kafka_ui.oauth.github.client_id
       client_secret = var.kafka_ui.oauth.github.client_secret
-      organization  = "Ben"
+      organization  = var.kafka_ui.oauth.github.organization
     }
   }
   users = var.kafka_ui.users

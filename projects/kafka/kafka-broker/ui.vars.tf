@@ -8,6 +8,7 @@ variable "kafka_ui" {
       github = object({
         client_id     = string
         client_secret = string
+        organization  = string
       })
     })
     users = list(object({
