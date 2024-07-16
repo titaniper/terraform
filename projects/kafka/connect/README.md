@@ -6,6 +6,12 @@ kubectl get pvc -n streaming
 kubectl get configmap -n streaming
 ```
 
+# 커넥트
+```
+kubectl describe kafkaconnect kafka-connect -n streaming
+
+```
+
 
 # 커넥터 사앹
 ```

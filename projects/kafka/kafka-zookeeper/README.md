@@ -83,3 +83,9 @@ kubectl port-forward service/nginx-service 8080:80 -n nginx
 kubectl port-forward service/kafka-ui-node-port2 31101:8080 -n streaming
 
 ```
+
+
+# 디버깅
+```
+kubectl describe kafka kafka -n streaming
+```

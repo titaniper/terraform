@@ -9,7 +9,7 @@ resource "kubernetes_secret" "mysql_password" {
   }
 
   data = {
-    password = "yourpassword" # root 패스워드를 설정합니다.
+    password = "yourpassword"
   }
 }
 
@@ -23,6 +23,27 @@ resource "kubernetes_service" "mysql" {
     port {
       port        = 3306
       target_port = 3306
+    }
+
+    selector = {
+      app = "mysql"
+    }
+  }
+}
+
+resource "kubernetes_service" "mysql-node" {
+  metadata {
+    name      = "mysql-node"
+    namespace = local.namespace
+  }
+
+  spec {
+    type = "NodePort"
+
+    port {
+      port        = 3306
+      target_port = 3306
+      node_port   = 30036  # 사용할 노드 포트를 설정합니다.
     }
 
     selector = {
@@ -56,7 +77,8 @@ resource "kubernetes_deployment" "mysql" {
       spec {
         container {
           name  = "mysql"
-          image = "mysql:8"
+          # 8.4에서는 에러남 # 8.0에서 문제가 있다. https://groups.google.com/g/debezium/c/l9uFOwUm7XQ/m/By-6FRWlAAAJ 
+          image = "mysql:8.1" 
 
           port {
             container_port = 3306

@@ -1,11 +1,6 @@
-resource "kubernetes_namespace" "streaming" {
-  metadata {
-    name = "streaming"
-  }
-}
-
 locals {
   cluster_name = "kafka"
+  namespace    = "streaming"
 }
 
 # 기존의 Role, RoleBinding, ClusterRole, ClusterRoleBinding 및 IAM 정책 리소스들 유지
@@ -41,14 +36,14 @@ resource "kubernetes_cluster_role_binding" "kafka_operator" {
   subject {
     kind      = "ServiceAccount"
     name      = "strimzi-cluster-operator"
-    namespace = kubernetes_namespace.streaming.metadata[0].name
+    namespace = local.namespace
   }
 }
 
 resource "kubernetes_role" "kafka_operator" {
   metadata {
     name      = "kafka-operator-role"
-    namespace = kubernetes_namespace.streaming.metadata[0].name
+    namespace = local.namespace
   }
 
   rule {
@@ -76,7 +71,7 @@ resource "kubernetes_role_binding" "kafka_operator" {
   subject {
     kind      = "ServiceAccount"
     name      = "strimzi-cluster-operator"
-    namespace = kubernetes_namespace.streaming.metadata[0].name
+    namespace = local.namespace
   }
 }
 
@@ -93,13 +88,29 @@ resource "kubernetes_role_binding" "kafka_operator" {
 #   value = aws_ecr_repository.repository["kafka-connect"].repository_url
 # }
 
+# resource "kubernetes_persistent_volume_claim" "kafka_pvc" {
+#   metadata {
+#     name      = "kafka-pvc"
+#     namespace = local.namespace
+#   }
+#   spec {
+#     access_modes = ["ReadWriteOnce"]
+#     resources {
+#       requests = {
+#         storage = "10Gi"
+#       }
+#     }
+#     storage_class_name = "kafka-storage"
+#   }
+# }
+
 resource "kubernetes_manifest" "kafka" {
   manifest = {
     apiVersion = "kafka.strimzi.io/v1beta2"
     kind       = "Kafka"
     metadata = {
       name      = local.cluster_name
-      namespace = kubernetes_namespace.streaming.metadata[0].name
+      namespace = local.namespace
       labels = {
         "app.kubernetes.io/managed-by" = "terraform"
       }

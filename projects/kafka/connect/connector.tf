@@ -1,12 +1,13 @@
-resource "kubernetes_manifest" "debezium-mysql-connector2" {
+
+resource "kubernetes_manifest" "debezium-mysql-connector" {
   manifest = {
     apiVersion = "kafka.strimzi.io/v1beta2"
     kind       = "KafkaConnector"
     metadata = {
-      name      = "debezium-mysql-connector2"
+      name      = "debezium-mysql-connector"
       namespace = local.namespace
       labels = {
-        "strimzi.io/cluster"           = local.cluster_name
+        "strimzi.io/cluster"           = kubernetes_manifest.kafka-connect.manifest.metadata.name
         "app.kubernetes.io/managed-by" = "terraform"
       }
     }
@@ -19,6 +20,8 @@ resource "kubernetes_manifest" "debezium-mysql-connector2" {
         "database.port"                                   = 3306
         "database.user"                                   = "root"
         "database.password"                               = var.debezium_mysql_password
+        # mysql 8.0이상에서 공개 키 검색이 비활성화 되어 있으며 명시적으로 추가
+        # "database.allowPublicKeyRetrieval"                = "true" # 추가된 설정
         "topic.prefix"                                    = "debezium"
         "database.server.id"                              = 898411419 # just random int
         "database.include.list"                           = "ben,jerry"

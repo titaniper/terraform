@@ -18,7 +18,7 @@ resource "kubernetes_manifest" "kafka-connect" {
       }
     }
     spec = {
-      replicas = 3
+      replicas = 1
       # authentication: (4)
       #   type: tls
       #   certificateAndKey:
@@ -97,12 +97,12 @@ resource "kubernetes_manifest" "kafka-connect" {
         }
       }
       readinessProbe = {
-        initialDelaySeconds = 60
-        timeoutSeconds      = 60
+        initialDelaySeconds = 15
+        timeoutSeconds      = 5
       }
       livenessProbe = {
-        initialDelaySeconds = 60
-        timeoutSeconds      = 60
+        initialDelaySeconds = 15
+        timeoutSeconds      = 5
       }
       #   metricsConfig = {
       #     type = "jmxPrometheusExporter"

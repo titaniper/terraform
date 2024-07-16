@@ -46,7 +46,7 @@ resource "kubernetes_deployment" "this" {
           }
           env {
             name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS"
-            value = "http://streaming-connect-connect.streaming.svc.cluster.local:8083"
+            value = "http://kafka-connect-connect.streaming.svc.cluster.local:8083"
           }
           env {
             name  = "SPRING_CONFIG_LOCATION"
