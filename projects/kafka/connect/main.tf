@@ -1,5 +1,5 @@
 locals {
-  namespace = "streaming"
+  namespace    = "streaming"
   cluster_name = "kafka"
 }
 
@@ -66,37 +66,35 @@ resource "kubernetes_manifest" "kafka-connect" {
             type = "tgz"
             # 방식 https://debezium.io/documentation/reference/stable/transformations/index.html
             # 패키지 https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/
-            url  = "https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.5.4.Final/debezium-connector-mysql-2.5.4.Final-plugin.tar.gz"
-          }, {
+            url = "https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.5.4.Final/debezium-connector-mysql-2.5.4.Final-plugin.tar.gz"
+            }, {
             type = "tgz"
             # https://repo1.maven.org/maven2/io/debezium/debezium-scripting/2.5.4.Final/
-            url  = "https://repo1.maven.org/maven2/io/debezium/debezium-scripting/2.5.4.Final/debezium-scripting-2.5.4.Final.tar.gz"
-          }, 
-          {
-            type = "jar"
-            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
-          }, {
-            type = "jar"
-            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-json/3.0.9/groovy-json-3.0.9.jar"
-          }, {
-            type = "jar"
-            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
-          }
+            url = "https://repo1.maven.org/maven2/io/debezium/debezium-scripting/2.5.4.Final/debezium-scripting-2.5.4.Final.tar.gz"
+            },
+            {
+              type = "jar"
+              url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
+            },
+            {
+              type = "jar"
+              url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
+            }
           ]
-        }
-        # , {
-        #   name = "groovy"
-        #   artifacts = [{
-        #     type = "jar"
-        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
-        #   }, {
-        #     type = "jar"
-        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-json/3.0.9/groovy-json-3.0.9.jar"
-        #   }, {
-        #     type = "jar"
-        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
-        #   }]
-        # }
+          }
+          # , {
+          #   name = "groovy"
+          #   artifacts = [{
+          #     type = "jar"
+          #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
+          #   }, {
+          #     type = "jar"
+          #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-json/3.0.9/groovy-json-3.0.9.jar"
+          #   }, {
+          #     type = "jar"
+          #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
+          #   }]
+          # }
         ]
       }
       # externalConfiguration = {
@@ -205,7 +203,7 @@ resource "kubernetes_service" "kafka-connect-node-port" {
     port {
       port        = 8083
       target_port = 8083
-      node_port   = 31083  # 사용할 노드 포트를 설정합니다.
+      node_port   = 31083 # 사용할 노드 포트를 설정합니다.
     }
 
     selector = {

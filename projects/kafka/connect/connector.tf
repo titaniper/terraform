@@ -16,10 +16,10 @@ resource "kubernetes_manifest" "debezium-mysql-connector" {
       tasksMax = 1
       config = {
         # https://debezium.io/documentation/reference/2.1/connectors/mysql.html#mysql-connector-properties
-        "database.hostname"                               = "mysql.streaming.svc.cluster.local"
-        "database.port"                                   = 3306
-        "database.user"                                   = "root"
-        "database.password"                               = var.debezium_mysql_password
+        "database.hostname" = "mysql.streaming.svc.cluster.local"
+        "database.port"     = 3306
+        "database.user"     = "root"
+        "database.password" = var.debezium_mysql_password
         # mysql 8.0이상에서 공개 키 검색이 비활성화 되어 있으며 명시적으로 추가
         # "database.allowPublicKeyRetrieval"                = "true" # 추가된 설정
         "topic.prefix"                                    = "debezium"
@@ -69,10 +69,10 @@ resource "kubernetes_manifest" "debezium-mysql-connector2" {
       tasksMax = 1
       config = {
         # https://debezium.io/documentation/reference/2.1/connectors/mysql.html#mysql-connector-properties
-        "database.hostname"                               = "mysql.streaming.svc.cluster.local"
-        "database.port"                                   = 3306
-        "database.user"                                   = "root"
-        "database.password"                               = var.debezium_mysql_password
+        "database.hostname" = "mysql.streaming.svc.cluster.local"
+        "database.port"     = 3306
+        "database.user"     = "root"
+        "database.password" = var.debezium_mysql_password
         # mysql 8.0이상에서 공개 키 검색이 비활성화 되어 있으며 명시적으로 추가
         # "database.allowPublicKeyRetrieval"                = "true" # 추가된 설정
         "topic.prefix"                                    = "debezium2"
@@ -97,12 +97,14 @@ resource "kubernetes_manifest" "debezium-mysql-connector2" {
         "message.max.bytes"       = "10485760" # 10MB
         "replica.fetch.max.bytes" = "10485760"
 
-        "retention.ms" = "259200000" # 3 days. 평일에는 장애를 바로 대응해야 하고 주말에 장애가 발생하면 조금 지연될 수 있으니 3일로 설정
-        "segment.ms"   = "259200000"
-        "transforms"   = "filter"
-        "transforms.filter.type" = "io.debezium.transforms.Filter"
-        "transforms.filter.language" = "jsr223.groovy"
-        "transforms.filter.condition" = "value.op == 'c'"
+        "retention.ms"                = "259200000" # 3 days. 평일에는 장애를 바로 대응해야 하고 주말에 장애가 발생하면 조금 지연될 수 있으니 3일로 설정
+        "segment.ms"                  = "259200000"
+        # https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-property-skipped-operations
+        "skipped.operations": "u,d,t"
+        # "transforms"                  = "filter"
+        # "transforms.filter.type"      = "io.debezium.transforms.Filter"
+        # "transforms.filter.language"  = "jsr223.groovy"
+        # "transforms.filter.condition" = "value != null && value.op == 'c'"
       }
     }
   }
