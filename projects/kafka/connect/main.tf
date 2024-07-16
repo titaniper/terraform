@@ -64,9 +64,40 @@ resource "kubernetes_manifest" "kafka-connect" {
           name = "debezium-mysql-connector"
           artifacts = [{
             type = "tgz"
-            url  = "https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.1.3.Final/debezium-connector-mysql-2.1.3.Final-plugin.tar.gz"
-          }]
-        }]
+            # 방식 https://debezium.io/documentation/reference/stable/transformations/index.html
+            # 패키지 https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/
+            url  = "https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.5.4.Final/debezium-connector-mysql-2.5.4.Final-plugin.tar.gz"
+          }, {
+            type = "tgz"
+            # https://repo1.maven.org/maven2/io/debezium/debezium-scripting/2.5.4.Final/
+            url  = "https://repo1.maven.org/maven2/io/debezium/debezium-scripting/2.5.4.Final/debezium-scripting-2.5.4.Final.tar.gz"
+          }, 
+          {
+            type = "jar"
+            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
+          }, {
+            type = "jar"
+            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-json/3.0.9/groovy-json-3.0.9.jar"
+          }, {
+            type = "jar"
+            url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
+          }
+          ]
+        }
+        # , {
+        #   name = "groovy"
+        #   artifacts = [{
+        #     type = "jar"
+        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy/3.0.9/groovy-3.0.9.jar"
+        #   }, {
+        #     type = "jar"
+        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-json/3.0.9/groovy-json-3.0.9.jar"
+        #   }, {
+        #     type = "jar"
+        #     url  = "https://repo1.maven.org/maven2/org/codehaus/groovy/groovy-jsr223/3.0.9/groovy-jsr223-3.0.9.jar"
+        #   }]
+        # }
+        ]
       }
       # externalConfiguration = {
       #   env:
@@ -158,6 +189,27 @@ resource "kubernetes_manifest" "kafka-connect" {
       #   #       value: "6831"
       #   # }
       # }
+    }
+  }
+}
+
+resource "kubernetes_service" "kafka-connect-node-port" {
+  metadata {
+    name      = "kafka-connect-node-port"
+    namespace = local.namespace
+  }
+
+  spec {
+    type = "NodePort"
+
+    port {
+      port        = 8083
+      target_port = 8083
+      node_port   = 31083  # 사용할 노드 포트를 설정합니다.
+    }
+
+    selector = {
+      "strimzi.io/kind" = "KafkaConnect"
     }
   }
 }
