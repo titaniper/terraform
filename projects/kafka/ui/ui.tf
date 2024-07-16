@@ -1,8 +1,13 @@
+locals {
+  namespace    = "streaming"
+  cluster_name = "kafka"
+}
+
 module "kafka-ui" {
   source    = "./modules/kubernetes/kafka-ui"
   name      = "kafka-ui"
-  namespace = kubernetes_namespace.streaming.metadata[0].name
-  clusters  = [kubernetes_manifest.kafka.manifest.metadata.name]
+  namespace = local.namespace
+  clusters  = [local.cluster_name]
 
   service = {
     node_port = 30002

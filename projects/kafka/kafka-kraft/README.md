@@ -1,0 +1,1 @@
+https://strimzi.io/blog/2023/09/11/kafka-node-pools-supporting-kraft/
