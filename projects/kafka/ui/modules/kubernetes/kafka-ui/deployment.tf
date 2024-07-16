@@ -41,6 +41,14 @@ resource "kubernetes_deployment" "this" {
             value = "kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
           }
           env {
+            name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME"
+            value = "debezium"
+          }
+          env {
+            name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS"
+            value = "http://streaming-connect-connect.streaming.svc.cluster.local:8083"
+          }
+          env {
             name  = "SPRING_CONFIG_LOCATION"
             value = "/kafka-ui/config.yml"
           }

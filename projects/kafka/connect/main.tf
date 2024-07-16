@@ -1,5 +1,6 @@
 locals {
   namespace = "streaming"
+  cluster_name = "kafka"
 }
 
 resource "kubernetes_manifest" "kafka-connect" {
@@ -7,7 +8,7 @@ resource "kubernetes_manifest" "kafka-connect" {
     apiVersion = "kafka.strimzi.io/v1beta2"
     kind       = "KafkaConnect"
     metadata = {
-      name      = "${local.namespace}-connect"
+      name      = "${local.cluster_name}-connect"
       namespace = local.namespace
       labels = {
         "app.kubernetes.io/managed-by" = "terraform"
@@ -32,10 +33,10 @@ resource "kubernetes_manifest" "kafka-connect" {
       #     - secretName: my-cluster-cluster-cert
       #       certificate: ca2.crt
       config = {
-        "group.id"                          = "${local.namespace}-connect"
-        "offset.storage.topic"              = "${local.namespace}-connect-offsets"
-        "config.storage.topic"              = "${local.namespace}-connect-configs"
-        "status.storage.topic"              = "${local.namespace}-connect-status"
+        "group.id"                          = "${local.cluster_name}-connect"
+        "offset.storage.topic"              = "${local.cluster_name}-connect-offsets"
+        "config.storage.topic"              = "${local.cluster_name}-connect-configs"
+        "status.storage.topic"              = "${local.cluster_name}-connect-status"
         "key.converter"                     = "org.apache.kafka.connect.json.JsonConverter"
         "value.converter"                   = "org.apache.kafka.connect.json.JsonConverter"
         "key.converter.schemas.enable"      = true
@@ -96,12 +97,12 @@ resource "kubernetes_manifest" "kafka-connect" {
         }
       }
       readinessProbe = {
-        initialDelaySeconds = 15
-        timeoutSeconds      = 5
+        initialDelaySeconds = 60
+        timeoutSeconds      = 60
       }
       livenessProbe = {
-        initialDelaySeconds = 15
-        timeoutSeconds      = 5
+        initialDelaySeconds = 60
+        timeoutSeconds      = 60
       }
       #   metricsConfig = {
       #     type = "jmxPrometheusExporter"
