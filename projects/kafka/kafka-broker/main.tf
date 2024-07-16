@@ -1,9 +1,3 @@
-
-provider "kubernetes" {
-  config_path = "~/.kube/config"
-  # host        = "https://192.168.49.2:8443"
-}
-
 resource "kubernetes_namespace" "streaming" {
   metadata {
     name = "streaming"
@@ -122,7 +116,7 @@ resource "kubernetes_manifest" "kafka" {
             tls  = false
             configuration = {
               useServiceDnsDomain = true
-              advertisedListeners = "PLAINTEXT://kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
+              # advertisedListeners = "PLAINTEXT://kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
             }
           },
           {
