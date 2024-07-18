@@ -109,3 +109,31 @@ resource "kubernetes_manifest" "debezium-mysql-connector2" {
     }
   }
 }
+
+
+resource "kubernetes_manifest" "my-sink-connector2" {
+  manifest = {
+    apiVersion = "kafka.strimzi.io/v1beta2"
+    kind       = "KafkaConnector"
+    metadata = {
+      name      = "my-sink-connector2"
+      namespace = local.namespace
+      labels = {
+        "strimzi.io/cluster"           = kubernetes_manifest.kafka-connect.manifest.metadata.name
+        "app.kubernetes.io/managed-by" = "terraform"
+      }
+    }
+    spec = {
+      class    = "com.example.MySinkConnector"
+      tasksMax = 1
+      config = {
+        "connector.class": "com.example.MySinkConnector",
+        "tasks.max": "1",
+        "source.topic": "debezium.ben.ddd_event",
+        "topics": "debezium.ben.ddd_event",
+        "dest.topic": "partitioned.debezium.ben.ddd_event",
+        "bootstrap.servers": "kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
+      }
+    }
+  }
+}
