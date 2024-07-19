@@ -1,0 +1,19 @@
+grafana:
+  enabled: true
+  adminPassword: "admin"  # 비밀번호 설정
+  service:
+    type: NodePort
+    nodePort: 30300  # 원하는 NodePort 설정
+
+prometheus:
+  prometheusSpec:
+    service:
+      type: NodePort
+      nodePort: 30090  # 원하는 NodePort 값
+
+
+alertmanager:
+  alertmanagerSpec:
+    service:
+      type: NodePort
+      nodePort: 30400  # 원하는 NodePort 설정
