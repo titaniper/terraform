@@ -18,14 +18,15 @@ tar xvfz kube-prometheus-stack-61.3.2.tgz
 - f: 아카이브 파일의 이름을 지정합니다.
 - z: gzip으로 압축된 아카이브를 처리합니다.
 
-
 kubectl create namespace monitoring
+helm install prometheus . -n monitoring -f values.yaml
+helm upgrade prometheus . -n monitoring -f values.yaml
+helm uninstall prometheus -n monitoring
 
-helm install kube-prom-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace -f values.yaml
-helm ls -n monitoring
-helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --namespace monitoring -f values.yaml
-
-helm uninstall kube-prom-stack -n monitoring
+# helm install kube-prom-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace -f values.yaml
+# helm ls -n monitoring
+# helm upgrade kube-prom-stack prometheus-community/kube-prometheus-stack --namespace monitoring -f values.yaml
+# helm uninstall kube-prom-stack -n monitoring
 ```
 
 서비스 확인

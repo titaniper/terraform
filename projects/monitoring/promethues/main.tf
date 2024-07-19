@@ -6,167 +6,87 @@ locals {
   namespace = "monitoring"
 }
 
-# resource "kubernetes_namespace" "monitoring" {
-#   metadata {
-#     name = "monitoring"
-#   }
-# }
-
-resource "kubernetes_deployment" "prometheus" {
+resource "kubernetes_secret" "alertmanager-config" {
   metadata {
-    name      = "prometheus"
+    name      = "alertmanager-config"
     namespace = local.namespace
   }
-  spec {
-    replicas = 1
-    selector {
-      match_labels = {
-        app = "prometheus"
-      }
-    }
-    template {
-      metadata {
-        labels = {
-          app = "prometheus"
-        }
-      }
-      spec {
-        container {
-          image = "prom/prometheus"
-          name  = "prometheus"
-          port {
-            container_port = 9090
-          }
-          volume_mount {
-            name       = "config-volume"
-            mount_path = "/etc/prometheus/"
-            sub_path   = "prometheus.yml"
-          }
-        }
-        volume {
-          name = "config-volume"
-          config_map {
-            name = kubernetes_config_map.prometheus_config.metadata[0].name
-          }
-        }
-      }
-    }
-  }
-}
 
-resource "kubernetes_config_map" "prometheus_config" {
-  metadata {
-    name      = "prometheus-config"
-    namespace = local.namespace
-  }
   data = {
-    "prometheus.yml" = <<YAML
-global:
-  scrape_interval: 15s
-
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-YAML
+    discord_url = var.discord_url
   }
 }
 
-resource "kubernetes_service" "prometheus" {
-  metadata {
-    name      = "prometheus"
-    namespace = local.namespace
-  }
-  spec {
-    selector = {
-      app = "prometheus"
-    }
-    port {
-      port        = 9090
-      target_port = 9090
-    }
-  }
-}
+resource "kubernetes_manifest" "alertmanager-config" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1alpha1"
+    kind       = "AlertmanagerConfig"
 
-resource "kubernetes_service" "prometheus" {
-  metadata {
-    name      = "prometheus"
-    namespace = kubernetes_namespace.monitoring.metadata[0].name
-  }
-  spec {
-    type = "NodePort"
-    selector = {
-      app = "prometheus"
-    }
-    port {
-      port        = 9090
-      target_port = 9090
-      node_port   = 30090 # 원하는 NodePort 설정
-    }
-  }
-}
-
-resource "kubernetes_deployment" "grafana" {
-  metadata {
-    name      = "grafana"
-    namespace = local.namespace
-  }
-  spec {
-    replicas = 1
-    selector {
-      match_labels = {
-        app = "grafana"
+    metadata = {
+      name      = "default"
+      namespace = local.namespace
+      labels = {
+        "app.kubernetes.io/managed-by" = "terraform"
       }
     }
-    template {
-      metadata {
-        labels = {
-          app = "grafana"
-        }
+
+    spec = {
+      route = {
+        groupBy        = ["alertname"]
+        groupInterval  = "15m"
+        repeatInterval = "15m"
+        receiver       = "default"
+        routes = [{
+          receiver = "technical-support"
+          matchers = [{
+            name  = "service"
+            value = "ben"
+          }]
+          groupInterval       = "5m"
+          repeatInterval      = "1d"
+          activeTimeIntervals = ["weekdays"]
+        }]
       }
-      spec {
-        container {
-          image = "grafana/grafana"
-          name  = "grafana"
-          port {
-            container_port = 3000
+
+      receivers = [{
+        name = "default"
+        discordConfigs = [{
+          sendResolved = true
+          apiURL = {
+            name = kubernetes_secret.alertmanager-config.metadata[0].name
+            key  = "discord_url"
           }
-        }
-      }
-    }
-  }
-}
+          title = "(${var.env}) [{{ .Status | toUpper }}{{ if eq .Status \"firing\" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}"
+          text  = <<-MSG
+            {{ range .Alerts -}}
+            {{ .Annotations.description }}
+            {{ end }}
+            MSG
+        }]
+        }, {
+        name = "technical-support"
+        discordConfigs = [{
+          sendResolved = false
+          apiURL = {
+            name = kubernetes_secret.alertmanager-config.metadata[0].name
+            key  = "discord_url"
+          }
+          title   = "(${var.env}) [{{ .Status | toUpper }}{{ if eq .Status \"firing\" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}"
+          message = <<-MSG
+            {{ range .Alerts -}}
+            {{ .Annotations.description }}
+            {{ end }}
+            MSG
+        }]
+      }]
 
-resource "kubernetes_service" "grafana" {
-  metadata {
-    name      = "grafana"
-    namespace = local.namespace
-  }
-  spec {
-    selector = {
-      app = "grafana"
-    }
-    port {
-      port        = 3000
-      target_port = 3000
-    }
-  }
-}
-
-resource "kubernetes_service" "grafana-node-port" {
-  metadata {
-    name      = "grafana-node-port"
-    namespace = kubernetes_namespace.monitoring.metadata[0].name
-  }
-  spec {
-    type = "NodePort"
-    selector = {
-      app = "grafana"
-    }
-    port {
-      port        = 3000
-      target_port = 3000
-      node_port   = 30300 # 원하는 NodePort 설정
+      muteTimeIntervals = [{
+        name = "weekdays"
+        timeIntervals = [{
+          weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+          location = "Asia/Seoul"
+        }]
+      }]
     }
   }
 }

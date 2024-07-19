@@ -531,7 +531,8 @@ alertmanager:
 
     ## Service type
     ##
-    type: ClusterIP
+    # type: ClusterIP
+    type: NodePort
 
   ## Configuration for creating a separate Service for each statefulset Alertmanager replica
   ##
@@ -1129,9 +1130,11 @@ grafana:
   ## Passed to grafana subchart and used by servicemonitor below
   ##
   service:
+    type: NodePort
     portName: http-web
     ipFamilies: []
     ipFamilyPolicy: ""
+    nodePort: 32378
 
   serviceMonitor:
     # If true, a ServiceMonitor CRD is created for a prometheus operator
@@ -3089,7 +3092,8 @@ prometheus:
 
     ## Service type
     ##
-    type: ClusterIP
+    # type: ClusterIP
+    type: "NodePort"
 
     ## Additional ports to open for Prometheus service
     ##

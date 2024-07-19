@@ -83,12 +83,18 @@ resource "kubernetes_manifest" "kafka-connect" {
           ]
           }, {
           name = "kafka-sink-connector"
-          artifacts = [{
+          artifacts = [
+            {
               type = "jar"
               # 방식 https://debezium.io/documentation/reference/stable/transformations/index.html
               # 패키지 https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/
-              url = "https://titaniper.github.io/static/jars/kafka-sink-connector5.jar"
-            }]
+              # url = "https://titaniper.github.io/static/jars/kafka-sink-connector-no-kill.jar"
+              # url = "https://titaniper.github.io/static/jars/kafka-sink-connector-kill.jar"
+              # url = "https://titaniper.github.io/static/jars/kafka-sink-connector-kill-tx.jar"
+              url = "https://titaniper.github.io/static/jars/kafka-sink-connector-no-kill-tx.jar"
+            }
+
+          ]
           }
 
           # , {

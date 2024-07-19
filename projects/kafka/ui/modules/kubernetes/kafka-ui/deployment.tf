@@ -30,7 +30,7 @@ resource "kubernetes_deployment" "this" {
       spec {
         container {
           name  = "kafka-ui"
-          image = "docker.io/provectuslabs/kafka-ui"
+          image = "ghcr.io/kafbat/kafka-ui" #https://github.com/kafbat/kafka-ui/pkgs/container/kafka-ui 
 
           env {
             name  = "KAFKA_CLUSTERS_0_NAME"
@@ -40,13 +40,13 @@ resource "kubernetes_deployment" "this" {
             name  = "KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS"
             value = "kafka-kafka-bootstrap.streaming.svc.cluster.local:9092"
           }
-          env {
-            name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME"
-            value = "debezium"
-          }
+          # env {
+          #   name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME"
+          #   value = "debezium"
+          # }
           env {
             name  = "KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS"
-            value = "http://kafka-connect-connect.streaming.svc.cluster.local:8083"
+            value = "http://kafka-connect-connect.streaming:8083"
           }
           env {
             name  = "SPRING_CONFIG_LOCATION"
