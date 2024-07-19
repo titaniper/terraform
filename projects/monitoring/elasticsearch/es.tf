@@ -3,7 +3,7 @@ resource "kubernetes_manifest" "elasticsearch" {
     apiVersion = "elasticsearch.k8s.elastic.co/v1"
     kind       = "Elasticsearch"
     metadata = {
-      name      = "elasticsearch"
+      name      = local.elasticsearch_name
       namespace = local.namespace
     }
     spec = {
@@ -19,7 +19,7 @@ resource "kubernetes_manifest" "elasticsearch" {
         podTemplate = {
           spec = {
             containers = [{
-              name = "elasticsearch"
+              name = local.elasticsearch_name
             }]
             priorityClassName = "system-cluster-critical"
           }
@@ -45,7 +45,7 @@ resource "kubernetes_manifest" "elasticsearch" {
         podTemplate = {
           spec = {
             containers = [{
-              name = "elasticsearch"
+              name = local.elasticsearch_name
               # resources   = {
               #   requests  = {
               #     cpu     = "200m"
@@ -80,13 +80,13 @@ resource "kubernetes_manifest" "elasticsearch" {
       monitoring = {
         metrics = {
           elasticsearchRefs = [{
-            name      = "elasticsearch"
+            name      = local.elasticsearch_name
             namespace = local.namespace
           }]
         }
         logs = {
           elasticsearchRefs = [{
-            name      = "elasticsearch"
+            name      = local.elasticsearch_name
             namespace = local.namespace
           }]
         }
@@ -96,5 +96,26 @@ resource "kubernetes_manifest" "elasticsearch" {
 
   field_manager {
     force_conflicts = true
+  }
+}
+
+
+resource "kubernetes_service" "elasticsearch_nodeport" {
+  metadata {
+    name      = "elasticsearch-nodeport"
+    namespace = local.namespace
+  }
+  spec {
+    selector = {
+      "elasticsearch.k8s.elastic.co/cluster-name" = local.elasticsearch_name
+    }
+
+    port {
+      port        = 9200
+      target_port = 9200
+      node_port   = 30092
+    }
+
+    type = "NodePort"
   }
 }

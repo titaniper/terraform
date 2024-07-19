@@ -122,20 +122,24 @@ resource "kubernetes_manifest" "service-api" {
 }
 
 // NOTE: https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd-full/monitoring.coreos.com_scrapeconfigs.yaml
+// NOTE: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/scrapeconfig.md
 # ScrapeConfig 리소스 생성
 resource "kubernetes_manifest" "external_metrics_scrapeconfig" {
+  # depends_on = [helm_release.prometheus_operator]
+
   manifest = {
-    "apiVersion" = "monitoring.coreos.com/v1"
-    "kind"       = "ScrapeConfig"
-    "metadata" = {
-      "name"      = "external-metrics-scrapeconfig"
-      "namespace" = "monitoring"
+    apiVersion = "monitoring.coreos.com/v1alpha1"
+    kind       = "ScrapeConfig"
+    metadata = {
+      name      = "external-metrics-scrapeconfig"
+      namespace = "monitoring"
     }
-    "spec" = {
-      "job_name"        = "external-metrics"
-      "scrape_interval" = "5s"
-      "static_configs" = [{
-        "targets" = ["external-metrics-endpoint:9090"]
+    spec = {
+      jobName        = "external-metrics"
+      scrapeInterval = "5s"
+      staticConfigs = [{
+        name    = "test"
+        targets = ["external-metrics-endpoint:9090"]
       }]
     }
   }
