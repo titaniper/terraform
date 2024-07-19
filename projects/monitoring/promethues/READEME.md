@@ -1,6 +1,7 @@
 # 구성
 
 # 프로메테우스 스택으로 구성한다.
+- https://github.com/prometheus-operator/prometheus-operator
 - https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 - https://leehosu.github.io/kube-prometheus-stack
 

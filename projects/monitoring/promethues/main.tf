@@ -90,3 +90,54 @@ resource "kubernetes_manifest" "alertmanager-config" {
     }
   }
 }
+
+// NOTE: 분리할 수 있다.
+resource "kubernetes_manifest" "service-api" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "service-api"
+      namespace = "monitoring"
+      labels = {
+        "app.kubernetes.io/managed-by" = "terraform"
+      }
+    }
+    spec = {
+      namespaceSelector = {
+        matchNames = ["service"]
+      }
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "service-api"
+        }
+      }
+      endpoints = [{
+        path     = "/metrics"
+        port     = "metrics"
+        interval = "1h"
+      }]
+    }
+  }
+}
+
+// NOTE: https://github.com/prometheus-operator/prometheus-operator/blob/main/example/prometheus-operator-crd-full/monitoring.coreos.com_scrapeconfigs.yaml
+# ScrapeConfig 리소스 생성
+resource "kubernetes_manifest" "external_metrics_scrapeconfig" {
+  manifest = {
+    "apiVersion" = "monitoring.coreos.com/v1"
+    "kind"       = "ScrapeConfig"
+    "metadata" = {
+      "name"      = "external-metrics-scrapeconfig"
+      "namespace" = "monitoring"
+    }
+    "spec" = {
+      "job_name"        = "external-metrics"
+      "scrape_interval" = "5s"
+      "static_configs" = [{
+        "targets" = ["external-metrics-endpoint:9090"]
+      }]
+    }
+  }
+}
+
